@@ -208,11 +208,11 @@ function xmlRegularize(cardsSheet, unitNodeSet) {
 			}
 			//cost block
 			{
-				//push all health in an array...
+				//push all cost in an array...
 				let nodes = pathFinderPlus(cardsSheet, "cost | upgrade/cost", 5, i);
 				let checkArray = [];
 				for(let j = nodes.iterateNext(); j; j = nodes.iterateNext()) {
-					//as a pair of key value pair with key being health and the node being value
+					//as a pair of key value pair with key being cost and the node being value
 					checkArray.push([pathFinderPlus(cardsSheet, ".", 1, j).numberValue, j])
 				}
 				if(checkArray.length > 1) {
