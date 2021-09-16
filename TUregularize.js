@@ -1,8 +1,13 @@
+let CARDSOURCES, BASE;
+BASE = "http://mobile-dev.tyrantonline.com/assets/";
+
 $(document).ready(function() {
 	/* $.get("cards.xml", function(data){
 		$("#results #RXSIO")[0].value = data.firstChild.outerHTML;
 	}, "xml"); */
-	
+	$.get(BASE + "skills_set.xml", function(data) {
+		CARDSOURCES = data;
+	}, "xml");
 	
 	$("#update")[0].addEventListener("click", function() {
 		let data = $("#results #RXSIO")[0].value;
@@ -156,7 +161,118 @@ function xmlRegularize(cardsSheet, unitNodeSet) {
 				level.appendChild(currentNode);
 			}
 		}
+		//reduction
+		toEdit = [];
 		
+		//for each unit...
+		path = "/root/unit[upgrade]";
+		edit = pathFinderPlus(cardsSheet, path, 5);
+		for(let i = edit.iterateNext(); i; i = edit.iterateNext()) {
+			//attack block
+			{
+				//push all attack in an array...
+				let nodes = pathFinderPlus(cardsSheet, "attack | upgrade/attack", 5, i);
+				let checkArray = [];
+				for(let j = nodes.iterateNext(); j; j = nodes.iterateNext()) {
+					//as a pair of key value pair with key being attack and the node being value
+					checkArray.push([pathFinderPlus(cardsSheet, ".", 1, j).numberValue, j])
+				}
+				if(checkArray.length > 1) {
+					for(let j = 1; j < checkArray.length; ++j) {
+						//if key is still same value after upgrade...
+						if(checkArray[j][0] == checkArray[j - 1][0]) {
+							//mark the node as toEdit
+							toEdit.push(checkArray[j][1]);
+						}
+					}
+				}
+			}
+			//health block
+			{
+				//push all health in an array...
+				let nodes = pathFinderPlus(cardsSheet, "health | upgrade/health", 5, i);
+				let checkArray = [];
+				for(let j = nodes.iterateNext(); j; j = nodes.iterateNext()) {
+					//as a pair of key value pair with key being health and the node being value
+					checkArray.push([pathFinderPlus(cardsSheet, ".", 1, j).numberValue, j])
+				}
+				if(checkArray.length > 1) {
+					for(let j = 1; j < checkArray.length; ++j) {
+						//if key is still same value after upgrade...
+						if(checkArray[j][0] == checkArray[j - 1][0]) {
+							//mark the node as toEdit
+							toEdit.push(checkArray[j][1]);
+						}
+					}
+				}
+			}
+			//cost block
+			{
+				//push all health in an array...
+				let nodes = pathFinderPlus(cardsSheet, "cost | upgrade/cost", 5, i);
+				let checkArray = [];
+				for(let j = nodes.iterateNext(); j; j = nodes.iterateNext()) {
+					//as a pair of key value pair with key being health and the node being value
+					checkArray.push([pathFinderPlus(cardsSheet, ".", 1, j).numberValue, j])
+				}
+				if(checkArray.length > 1) {
+					for(let j = 1; j < checkArray.length; ++j) {
+						//if key is still same value after upgrade...
+						if(checkArray[j][0] == checkArray[j - 1][0]) {
+							//mark the node as toEdit
+							toEdit.push(checkArray[j][1]);
+						}
+					}
+				}
+			}
+			//skill block
+			{
+				//push all skillsets in an array...
+				//Oh Orbo, I need a skill class...
+				//recycled from cardbuilder. lol
+				let checkArray = [];
+				//starting from initial skillset...
+				let level = 0;
+				let maxLevel = 1 + pathFinderPlus(cardsSheet, "count(upgrade)", 1, i).numberValue;
+				{
+					let nodes = pathFinderPlus(cardsSheet, "skill", 5, i);
+					let skillArray = [];
+					for(let j = nodes.iterateNext(); j; j = nodes.iterateNext()) {
+						//push skill and node pair in skillArray
+						skillArray.push([new xSkill(cardsSheet, j), j]);
+					}
+					//push skill and level pair into checkArray if not empty;
+					if(skillArray.length)
+						checkArray.push([skillArray, level]);
+				}
+				//for upgrades
+				for (level = 1; level < maxLevel; ++level) {
+					let nodes = pathFinderPlus(cardsSheet, "upgrade[level = " + level + " and skill]/skill", 5, i);
+					let skillArray = [];
+					for(let j = nodes.iterateNext(); j; j = nodes.iterateNext()) {
+						//push skill and node pair in skillArray
+						skillArray.push([new xSkill(cardsSheet, j), j]);
+					}
+					//push skill and level pair into checkArray if not empty;
+					if(skillArray.length)
+						checkArray.push([skillArray, level]);
+				}
+				if(checkArray.length > 1) {
+					for(let j = 1; j < checkArray.length; ++j) {
+						//if key is still same value after upgrade...
+						if(compareSkillSet(checkArray[j][0], checkArray[j - 1][0])) {
+							//mark all the skillnodes as toEdit
+							checkArray[j][0].forEach(function(value, index, array) {
+								toEdit.push(value[1])
+							})
+						}
+					}
+				}
+			}
+			
+		}
+		
+		$(toEdit).remove();
 	}
 }
 
@@ -187,6 +303,24 @@ class Card {
 			}
 		}
 	}
+	static facStr(type) {
+		switch (type) { //is very unlikely to be changed.
+			case 1:
+				return "Imperial";
+			case 2:
+				return "Raider";
+			case 3:
+				return "Bloodthirsty";
+			case 4:
+				return "Xeno";
+			case 5:
+				return "Righteous";
+			case 6:
+				return "Progenitor";
+			default:
+				return "Longshot";
+		}
+	}
 }
 
 Card.baseCard = {
@@ -209,8 +343,75 @@ class xSkill {
 			x = attributes.iterateNext();
 		}
 	}
+	skillText() {
+		var result = xSkill.skillName(this.id);
+		if (result != this.id) {
+			if (this.trigger) {
+				result = "On " + xSkill.triggerStr(this.trigger) + ": " + result;
+			}
+			if (this.all) {
+				result += " All";
+			}
+			if (this.n) {
+				result += " " + this.n;
+			}
+			if (this.y) {
+				result += " " + Card.facStr(this.y);
+			} else if (this.n && this.x) {
+				result += " Assault";
+			}
+			if (this.s) {
+				result += " " + xSkill.skillName(this.s);
+			}
+			if (this.s2) {
+				result += " to " + xSkill.skillName(this.s2);
+			}
+			if (this.x) {
+				result += " " + this.x;
+			}
+			if (this.card_id) {
+				result += " " + this.card_id;
+			}
+			if (this.c) {
+				result += " every " + this.c;
+			}
+		}
+		return result;
+	}
+	
+	static skillName(id) {
+		var path = "/root/skillType[id=\"" + id + "\"]/name[1]";
+		var result = pathFinderPlus(CARDSOURCES, path, 2).stringValue;
+		//stringValue
+		return (result) ? result : id;
+	}
+	
+	static triggerStr(trigger) {
+		switch (trigger) {
+			case "play":
+				return "Play";
+			case "death":
+				return "Death";
+			case "attacked":
+				return "Attacked";
+			default:
+				return "Longshoted";
+		}
+	}
 }
 
+function compareSkillSet(left, right) {
+	let result = true
+	if (left.length != right.length)
+		return false
+	left.forEach(function(value, index, array) {
+		if (!result)
+			return;
+		if (left[index][0].skillText() != right[index][0].skillText())
+			result = false;
+	});
+	return result;
+}
 
 function unitToCards(sheet, unitNode) {
 	let cards =[];
