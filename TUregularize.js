@@ -1,11 +1,10 @@
-let CARDSOURCES, BASE;
-BASE = "http://mobile-dev.tyrantonline.com/assets/";
+let CARDSOURCES;
 
 $(document).ready(function() {
 	/* $.get("cards.xml", function(data){
 		$("#results #RXSIO")[0].value = data.firstChild.outerHTML;
 	}, "xml"); */
-	$.get(BASE + "skills_set.xml", function(data) {
+	$.get("skills_set.xml", function(data) {
 		CARDSOURCES = data;
 	}, "xml");
 	
