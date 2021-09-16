@@ -4,7 +4,7 @@ $(document).ready(function() {
 	/* $.get("cards.xml", function(data){
 		$("#results #RXSIO")[0].value = data.firstChild.outerHTML;
 	}, "xml"); */
-	$.get("skills_set.xml", function(data) {
+	$.get("xml/skills_set.xml", function(data) {
 		CARDSOURCES = data;
 	}, "xml");
 	
