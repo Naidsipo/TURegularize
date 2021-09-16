@@ -117,6 +117,7 @@ function xmlRegularize(cardsSheet, unitNodeSet) {
 			currentNode.appendChild(cardsSheet.createTextNode(card.attack));
 			level.appendChild(currentNode);
 		}
+		currentNode.textContent = card.attack;
 		//health
 		currentNode = pathFinderPlus(cardsSheet, "health", 5, level).iterateNext();
 		if(!currentNode) {
@@ -124,6 +125,7 @@ function xmlRegularize(cardsSheet, unitNodeSet) {
 			currentNode.appendChild(cardsSheet.createTextNode(card.health));
 			level.appendChild(currentNode);
 		}
+		currentNode.textContent = card.health;
 		//cost
 		currentNode = pathFinderPlus(cardsSheet, "cost", 5, level).iterateNext();
 		if(!currentNode) {
@@ -131,6 +133,7 @@ function xmlRegularize(cardsSheet, unitNodeSet) {
 			currentNode.appendChild(cardsSheet.createTextNode(card.cost));
 			level.appendChild(currentNode);
 		}
+		currentNode.textContent = card.cost;
 		//skills
 		
 		if(card.level == 1) {
