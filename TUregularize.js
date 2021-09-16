@@ -140,7 +140,7 @@ function xmlRegularize(cardsSheet, unitNodeSet) {
 			for(let x of card.skills.values()) {
 				currentNode = pathFinderPlus(cardsSheet, "skill[@id = '" + x.id + "']", 5, level).iterateNext();
 				for(let i in x) {
-					currentNode[i] = x[i];
+					$(currentNode).attr(i, x[i]);
 				}
 			}
 		} else {
