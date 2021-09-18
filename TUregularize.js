@@ -60,22 +60,6 @@ function xmlRegularize(cardsSheet, unitNodeSet) {
 								cards.length);
 						break;
 					}
-					case "n": {
-						if(!aSkill["all"] && aSkill[i])
-							aSkill[i] = bSkill[i] * getGrowth(
-								cards[0].skills.get(x) && cards[0].skills.get(x)[i] ? cards[0].skills.get(x)[i] : 1, 
-								cards[cards.length - 1].skills.get(x) && cards[cards.length - 1].skills.get(x)[i] ? cards[cards.length - 1].skills.get(x)[i] : 5, 
-								cards.length);
-						break;
-					}
-					case "c": {
-						if(aSkill[i])
-							aSkill[i] = bSkill[i] * getGrowth(
-								cards[0].skills.get(x) && cards[0].skills.get(x)[i] ? cards[0].skills.get(x)[i] : 7, 
-								cards[cards.length - 1].skills.get(x) && cards[cards.length - 1].skills.get(x)[i] ? cards[cards.length - 1].skills.get(x)[i] : 1, 
-								cards.length);
-						break;
-					}
 					default: {
 						break;
 					}
@@ -90,9 +74,7 @@ function xmlRegularize(cardsSheet, unitNodeSet) {
 		for(let x of cards[i].skills.values()) {
 			for(let i in x) {
 				switch(i) {
-					case "x":
-					case "n":
-					case "c": {
+					case "x":{
 						x[i] = Math.round(x[i]);
 						break;
 					}
