@@ -44,9 +44,9 @@ function xmlRegularize(cardsSheet, unitNodeSet) {
 		}
 	}
 	for(let i = 1; i < cards.length; ++i) {
-		cards[i].attack = cards[i - 1].attack * getGrowth(cards[0].attack != 0 ? cards[0].attack : 1, cards[cards.length - 1].attack, cards.length);
+		cards[i].attack = cards[i - 1].attack * getGrowth(cards[0].attack, cards[cards.length - 1].attack, cards.length);
 		cards[i].health = cards[i - 1].health * getGrowth(cards[0].health, cards[cards.length - 1].health, cards.length);
-		cards[i].cost = cards[i - 1].cost * getGrowth(cards[0].cost != 0 ? cards[0].cost : 1, cards[cards.length - 1].cost, cards.length);
+		cards[i].cost = cards[i - 1].cost * getGrowth(cards[0].cost, cards[cards.length - 1].cost, cards.length);
 		for(const x of cards[i - 1].skills.keys()) {
 			let bSkill = cards[i - 1].skills.has(x) ? cards[i - 1].skills.get(x) : {x: 1, n: 1, c: 7};
 			let aSkill = cards[i].skills.get(x);
@@ -266,6 +266,8 @@ function pathFinderPlus(sheet, path, type = 0, node = sheet) {
 }
 
 function getGrowth(initialStat, finalStat, levels = 18) {
+	if(initialStat == 0)
+		return Math.pow(finalStat, 1 / (levels - 1));
 	return Math.pow(finalStat/initialStat, 1 / (levels - 1));
 }
 
