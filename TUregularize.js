@@ -16,7 +16,6 @@ $(document).ready(function() {
 		if (data.search("</root>") == -1) {
 			data = data + "</root>";
 		}
-		data = data.replace(/\n|\t/g, "");
 		let sheet = $.parseXML(data);
 		let unitNodeSet = [];
 		let units = pathFinderPlus(sheet, "/root/unit", 5)
